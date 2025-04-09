@@ -97,7 +97,7 @@ private:
     } player;
 
     //Exercise 1
-    struct TransformComponent
+   /* struct TransformComponent
     {
         glm::vec3 pos, scale, rotation;
     };
@@ -131,7 +131,7 @@ private:
 
     void PlayerControllerSystem(entt::registry& registry, float deltaTime);
 
-    void RenderSystem();
+    void RenderSystem();*/
      
     // Game meshes
     std::shared_ptr<eeng::RenderableMesh> grassMesh, horseMesh, characterMesh;
