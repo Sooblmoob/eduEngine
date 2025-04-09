@@ -16,14 +16,12 @@ bool Game::init()
     // Do some entt stuff
     entity_registry = std::make_shared<entt::registry>();
 
-    
-
     // Fox
     foxMesh = std::make_shared<eeng::RenderableMesh>();
     foxMesh->load("assets/Animals/Fox.fbx", false);
 
     auto foxEnt = entity_registry->create();
-    entity_registry->emplace<TransformComponent>(foxEnt, TransformComponent{ {0, 0, 0}, {0.01f, 0.01f, 0.01f}, {0, 0, 0} });
+    entity_registry->emplace<TransformComponent>(foxEnt, TransformComponent{ {0, 0, 0}, {0, 0, 0} , { 0.01f, 0.01f, 0.01f } });
     entity_registry->emplace<LinearVelocityComponent>(foxEnt, LinearVelocityComponent{ {0, 0, 0} });
     entity_registry->emplace<MeshComponent>(foxEnt, MeshComponent{ foxMesh });
 
@@ -31,9 +29,17 @@ bool Game::init()
     grassMesh = std::make_shared<eeng::RenderableMesh>();
     grassMesh->load("assets/grass/grass_trees_merged2.fbx", false);
 
+    auto grassEnt = entity_registry->create();
+    entity_registry->emplace<TransformComponent>(grassEnt, TransformComponent{ { 0.0f, 0.0f, 0.0f }, { 0, 0, 0 }, { 100.0f, 100.0f, 100.0f } });
+    entity_registry->emplace<MeshComponent>(grassEnt, MeshComponent{ grassMesh });
+
     // Horse
     horseMesh = std::make_shared<eeng::RenderableMesh>();
-    horseMesh->load("assets/Animals/Horse.fbx", false);
+    horseMesh->load("assets/grass/Horse.fbx", false);
+
+    auto horseEnt = entity_registry->create();
+    entity_registry->emplace<TransformComponent>(horseEnt, TransformComponent{ { 30.0f, 0.0f, -35.0f }, { 0, 1, 0 }, { 0.01f, 0.01f, 0.01f } });
+    entity_registry->emplace<MeshComponent>(horseEnt, MeshComponent{ horseMesh });
 
     // Character
     characterMesh = std::make_shared<eeng::RenderableMesh>();
@@ -215,14 +221,14 @@ void Game::render(
 
     RenderSystem(*entity_registry);
 
-    // Grass
-    forwardRenderer->renderMesh(grassMesh, grassWorldMatrix);
-    grass_aabb = grassMesh->m_model_aabb.post_transform(grassWorldMatrix);
+    //// Grass
+    //forwardRenderer->renderMesh(grassMesh, grassWorldMatrix);
+    //grass_aabb = grassMesh->m_model_aabb.post_transform(grassWorldMatrix);
 
-    // Horse
-    horseMesh->animate(3, time);
-    forwardRenderer->renderMesh(horseMesh, horseWorldMatrix);
-    horse_aabb = horseMesh->m_model_aabb.post_transform(horseWorldMatrix);
+    //// Horse
+    //horseMesh->animate(3, time);
+    //forwardRenderer->renderMesh(horseMesh, horseWorldMatrix);
+    //horse_aabb = horseMesh->m_model_aabb.post_transform(horseWorldMatrix);
 
     // Character, instance 1
     characterMesh->animate(characterAnimIndex, time * characterAnimSpeed);
