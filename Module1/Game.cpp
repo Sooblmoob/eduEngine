@@ -15,12 +15,11 @@ bool Game::init()
 
     // Do some entt stuff
     entity_registry = std::make_shared<entt::registry>();
-    auto ent1 = entity_registry->create();
-    struct Tfm
-    {
-        float x, y, z;
-    };
-    entity_registry->emplace<Tfm>(ent1, Tfm{});
+
+    auto foxEnt = entity_registry->create();
+    entity_registry->emplace<TransformComponent>(foxEnt, TransformComponent{});
+    entity_registry->emplace<LinearVelocityComponent>(foxEnt, TransformComponent{});
+    entity_registry->emplace<MeshComponent>(foxEnt, TransformComponent{});
 
     // Grass
     grassMesh = std::make_shared<eeng::RenderableMesh>();
@@ -88,6 +87,10 @@ void Game::update(
 {
     updateCamera(input);
 
+    //Exersice 1
+    MovementSystem(*entity_registry, deltaTime);
+    PlayerControllerSystem(*entity_registry, deltaTime);
+
     updatePlayer(deltaTime, input);
 
     pointlight.pos = glm::vec3(
@@ -127,6 +130,36 @@ void Game::update(
             glm_aux::to_string(ray.dir).c_str());
     }
 }
+
+//Exercise 1
+void Game::MovementSystem(entt::registry& registry, float deltaTime)
+{
+    auto view = registry.view<TransformComponent, LinearVelocityComponent>();
+
+    for (auto entity : view) {
+        auto& transform = view.get<TransformComponent>(entity);
+        auto& velocity = view.get<LinearVelocityComponent>(entity);
+
+        transform.pos += velocity.velocity * deltaTime;
+    }
+};
+
+void Game::PlayerControllerSystem(entt::registry& registry, float deltaTime)
+{
+    auto view = registry.view<PlayerControllerComponent, LinearVelocityComponent>();
+
+    for (auto entity : view) {
+        auto& transform = view.get<PlayerControllerComponent>(entity);
+        auto& velocity = view.get<LinearVelocityComponent>(entity);
+
+
+    }
+};
+
+void RenderSystem()
+{
+
+};
 
 void Game::render(
     float time,

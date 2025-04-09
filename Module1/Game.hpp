@@ -96,6 +96,43 @@ private:
         glm_aux::Ray viewRay;
     } player;
 
+    //Exercise 1
+    struct TransformComponent
+    {
+        glm::vec3 pos, scale, rotation;
+    };
+
+    struct LinearVelocityComponent
+    {
+        glm::vec3 velocity;
+    };
+
+    struct MeshComponent
+    {
+        std::weak_ptr<eeng::RenderableMesh> mesh;
+    };
+
+    struct PlayerControllerComponent
+    {
+        glm::vec3 moveDirection = glm::vec3(0.0f);
+        bool isJumping = false;
+        float speed = 5.0f;
+        float jumpHeight = 5.0f;
+        float rotationSpeed = 0.1f;
+    };
+
+    struct NPCController
+    {
+        glm::vec3 targetPosition = glm::vec3(0.0f);
+        float speed = 2.0f;
+    };
+
+    void MovementSystem(entt::registry& registry, float deltaTime);
+
+    void PlayerControllerSystem(entt::registry& registry, float deltaTime);
+
+    void RenderSystem();
+     
     // Game meshes
     std::shared_ptr<eeng::RenderableMesh> grassMesh, horseMesh, characterMesh;
 
@@ -123,6 +160,7 @@ private:
     void updatePlayer(
         float deltaTime,
         InputManagerPtr input);
+
 };
 
 #endif
