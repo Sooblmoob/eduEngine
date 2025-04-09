@@ -16,10 +16,16 @@ bool Game::init()
     // Do some entt stuff
     entity_registry = std::make_shared<entt::registry>();
 
-    //auto foxEnt = entity_registry->create();
-    //entity_registry->emplace<TransformComponent>(foxEnt, TransformComponent{});
-    //entity_registry->emplace<LinearVelocityComponent>(foxEnt, TransformComponent{});
-    //entity_registry->emplace<MeshComponent>(foxEnt, TransformComponent{});
+    
+
+    // Fox
+    foxMesh = std::make_shared<eeng::RenderableMesh>();
+    foxMesh->load("assets/Animals/Fox.fbx", false);
+
+    auto foxEnt = entity_registry->create();
+    entity_registry->emplace<TransformComponent>(foxEnt, TransformComponent{ {0, 0, 0}, {0.01f, 0.01f, 0.01f}, {0, 0, 0} });
+    entity_registry->emplace<LinearVelocityComponent>(foxEnt, LinearVelocityComponent{ {0, 0, 0} });
+    entity_registry->emplace<MeshComponent>(foxEnt, MeshComponent{ foxMesh });
 
     // Grass
     grassMesh = std::make_shared<eeng::RenderableMesh>();
@@ -88,8 +94,8 @@ void Game::update(
     updateCamera(input);
 
     //Exersice 1
-   /* MovementSystem(*entity_registry, deltaTime);
-    PlayerControllerSystem(*entity_registry, deltaTime);*/
+    MovementSystem(*entity_registry, deltaTime);
+    PlayerControllerSystem(*entity_registry, deltaTime, input);
 
     updatePlayer(deltaTime, input);
 
@@ -132,34 +138,59 @@ void Game::update(
 }
 
 //Exercise 1
-//void Game::MovementSystem(entt::registry& registry, float deltaTime)
-//{
-//    auto view = registry.view<TransformComponent, LinearVelocityComponent>();
-//
-//    for (auto entity : view) {
-//        auto& transform = view.get<TransformComponent>(entity);
-//        auto& velocity = view.get<LinearVelocityComponent>(entity);
-//
-//        transform.pos += velocity.velocity * deltaTime;
-//    }
-//};
-//
-//void Game::PlayerControllerSystem(entt::registry& registry, float deltaTime)
-//{
-//    auto view = registry.view<PlayerControllerComponent, LinearVelocityComponent>();
-//
-//    for (auto entity : view) {
-//        auto& transform = view.get<PlayerControllerComponent>(entity);
-//        auto& velocity = view.get<LinearVelocityComponent>(entity);
-//
-//
-//    }
-//};
-//
-//void Game::RenderSystem()
-//{
-//
-//};
+void Game::MovementSystem(entt::registry& registry, float deltaTime)
+{
+    auto view = registry.view<TransformComponent, LinearVelocityComponent>();
+
+    for (auto entity : view) {
+        auto& transform = view.get<TransformComponent>(entity);
+        auto& velocity = view.get<LinearVelocityComponent>(entity);
+
+        transform.pos += velocity.velocity * deltaTime;
+    }
+};
+
+void Game::PlayerControllerSystem(entt::registry& registry, float deltaTime, InputManagerPtr& input)
+{
+    auto view = registry.view<PlayerControllerComponent, LinearVelocityComponent>();
+
+    for (auto entity : view) {
+        auto& velocity = view.get<LinearVelocityComponent>(entity);
+
+        using Key = eeng::InputManager::Key;
+
+        glm::vec3 inputDir = glm::vec3(0.0f);
+
+        if (input->IsKeyPressed(Key::W)) inputDir.z -= 1.0f;
+        if (input->IsKeyPressed(Key::S)) inputDir.z += 1.0f;
+        if (input->IsKeyPressed(Key::A)) inputDir.x -= 1.0f;
+        if (input->IsKeyPressed(Key::D)) inputDir.x += 1.0f;
+
+        if (glm::length(inputDir) > 0.0f) {
+            inputDir = glm::normalize(inputDir);
+        }
+
+        float speed = 6.0f; // or get from PlayerControllerComponent
+        velocity.velocity = glm::vec3(inputDir.x * speed, velocity.velocity.y, inputDir.z * speed);
+    }
+};
+
+void Game::RenderSystem(entt::registry& registry)
+{
+    auto view = registry.view<TransformComponent, MeshComponent>();
+
+    for (auto entity : view) {
+        auto& transform = view.get<TransformComponent>(entity);
+        auto& meshComp = view.get<MeshComponent>(entity);
+
+        glm::mat4 objWorldMatrix = glm_aux::TRS(
+            transform.pos,
+            transform.rotation.y, { 0, 1, 0 },
+            transform.scale);
+
+        forwardRenderer->renderMesh(meshComp.mesh, objWorldMatrix);
+    }
+};
 
 void Game::render(
     float time,
@@ -181,6 +212,8 @@ void Game::render(
 
     // Begin rendering pass
     forwardRenderer->beginPass(matrices.P, matrices.V, pointlight.pos, pointlight.color, camera.pos);
+
+    RenderSystem(*entity_registry);
 
     // Grass
     forwardRenderer->renderMesh(grassMesh, grassWorldMatrix);

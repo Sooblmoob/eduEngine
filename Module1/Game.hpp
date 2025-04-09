@@ -97,7 +97,7 @@ private:
     } player;
 
     //Exercise 1
-   /* struct TransformComponent
+    struct TransformComponent
     {
         glm::vec3 pos, scale, rotation;
     };
@@ -109,15 +109,13 @@ private:
 
     struct MeshComponent
     {
-        std::weak_ptr<eeng::RenderableMesh> mesh;
+        std::shared_ptr<eeng::RenderableMesh> mesh;
     };
 
     struct PlayerControllerComponent
     {
         glm::vec3 moveDirection = glm::vec3(0.0f);
-        bool isJumping = false;
         float speed = 5.0f;
-        float jumpHeight = 5.0f;
         float rotationSpeed = 0.1f;
     };
 
@@ -129,19 +127,19 @@ private:
 
     void MovementSystem(entt::registry& registry, float deltaTime);
 
-    void PlayerControllerSystem(entt::registry& registry, float deltaTime);
+    void PlayerControllerSystem(entt::registry& registry, float deltaTime, InputManagerPtr& input);
 
-    void RenderSystem();*/
+    void RenderSystem(entt::registry& registry);
      
     // Game meshes
-    std::shared_ptr<eeng::RenderableMesh> grassMesh, horseMesh, characterMesh;
+    std::shared_ptr<eeng::RenderableMesh> grassMesh, horseMesh, characterMesh, foxMesh;
 
     // Game entity transformations
     glm::mat4 characterWorldMatrix1, characterWorldMatrix2, characterWorldMatrix3;
     glm::mat4 grassWorldMatrix, horseWorldMatrix;
 
     // Game entity AABBs (for collision detection or visualization)
-    eeng::AABB character_aabb1, character_aabb2, character_aabb3, horse_aabb, grass_aabb;
+    eeng::AABB character_aabb1, character_aabb2, character_aabb3, horse_aabb, grass_aabb, fox_aabb;
 
     // Placeholder animation state
     int characterAnimIndex = -1;
